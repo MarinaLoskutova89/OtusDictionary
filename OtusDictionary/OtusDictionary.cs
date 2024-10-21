@@ -9,36 +9,44 @@ namespace OtusDictionary
     public class OtusDictionary
     {
         private int _size;
-        private string[] _values;
+        private KeyValuePair<int, string>[] _keyValuePair;
+
         public OtusDictionary()
         {
             _size = 32;
-            _values = new string[_size];
+            _keyValuePair = new KeyValuePair<int, string>[_size];
         }
 
         public void Add(int key, string? value)
         {
             if (value is null) throw new ArgumentNullException("Value must not be null!");
-            if (_values.Contains(value)) throw new Exception($"Value - {value} already exist!");
-            int currentIndex = GetHash(key);
-            if (currentIndex >= _size) Resize(currentIndex);
-            if (_values[currentIndex] != null) currentIndex = GetAnotherIndex(currentIndex);
+            
+            KeyValuePair<int, string> newPair = new(key, value);
+            
+            if (_keyValuePair.Contains(newPair)) throw new Exception($"Input values already exsist!");
 
-            _values[currentIndex] = value;
+            int currentIndex = GetHash(key);
+
+            if (currentIndex >= _size) Resize(currentIndex);
+            if (_keyValuePair[currentIndex].Value != null) currentIndex = GetAnotherIndex(currentIndex);
+            
+            _keyValuePair[currentIndex] = newPair;
         }
 
         public string Get(int key)
         {
             int currentIndex = GetHash(key);
+
             if (currentIndex >= _size)
             {
                 throw new ArgumentOutOfRangeException($"Argument - [{key}], out of range!");
             }
-            if (_values[currentIndex] == null)
+            if (_keyValuePair[currentIndex].Value == null)
             {
                 throw new ArgumentNullException($"Key - [{key}] does not have value!");
             }
-            return _values[currentIndex];
+
+            return _keyValuePair[currentIndex].Value;
         }
 
         public int GetHash(int key)
@@ -49,19 +57,21 @@ namespace OtusDictionary
         public void Resize(int currentIndex)
         {
             _size = _size * 2;
-            string[] tmpValues = _values;
-            _values = new string[_size];
+            KeyValuePair<int, string>[] tmpKeyValuePair = _keyValuePair;
+            _keyValuePair = new KeyValuePair<int, string>[_size];
 
-            for (int i=0; i < tmpValues.Length; i++)
+            for (int i = 0; i < tmpKeyValuePair.Length; i++)
             {
-                _values[i] = tmpValues[i];
+                int newIndex = tmpKeyValuePair[i].Key.GetHashCode();
+                if (_keyValuePair[newIndex].Value != null) newIndex = GetAnotherIndex(newIndex);
+                _keyValuePair[newIndex] = tmpKeyValuePair[i];
             }
         }
 
         public int GetAnotherIndex(int currentIndex)
         {
             int newIndex = currentIndex;
-            while (_values[newIndex] != null)
+            while (_keyValuePair[newIndex].Value != null)
             {
                 newIndex++;
                 if (newIndex >= _size)

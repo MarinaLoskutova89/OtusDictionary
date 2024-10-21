@@ -19,7 +19,7 @@
                 Console.WriteLine();
 
                 string getValue = otusDictionary.Get(rand.Next(50));
-                
+
                 Console.WriteLine($"We get => {getValue}");
 
                 Console.WriteLine($"Index[6] = {otusDictionary[6]}");
